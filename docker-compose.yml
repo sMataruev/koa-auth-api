@@ -1,0 +1,61 @@
+version: '3.7'
+services:
+# ----------------------------------------- AUTH ------------------------------------- #
+    auth_service:
+        build: ./auth_service
+        container_name: auth_service
+        restart: always
+        networks:
+            - koa-net
+        volumes:
+            - koa-auth:/data/db
+        ports:
+            - 5001:7000
+        environment:
+            - SERVER_PORT=7000
+            - SERVER_HOST=127.0.0.1
+            - MONGO_URL=mongodb://common_mongodb:27017/koa-auth-db
+        depends_on:
+            - common_mongodb
+#  --- COMMON DB
+    common_mongodb:
+        image: mongo:latest
+        container_name: common_db
+        restart: always
+        networks:
+            - koa-net
+        volumes:
+           - koa-app:/data/db
+# ----------------------------------------- APP  ------------------------------------- #
+    app_service:
+        build: ./app_service
+        container_name: app_service
+        restart: always
+        networks:
+            - koa-net
+        ports:
+            - 5002:7000
+        environment:
+            - SERVER_PORT=7000
+            - SERVER_HOST=127.0.0.1
+            - MONGO_URL=mongodb://common_mongodb:27017/koa-app-db
+        depends_on:
+            - common_mongodb
+            - auth_service
+#  --- COMMON DB
+    common_mongodb:
+        image: mongo:latest
+        container_name: common_db
+        restart: always
+        networks:
+            - koa-net
+        volumes:
+           - koa-app:/data/db
+
+volumes:
+    koa-auth:
+    koa-app:
+networks:
+    koa-net:
+        driver: bridge
+

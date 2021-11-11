@@ -1,0 +1,6 @@
+node_modules
+Dockerfile
+Makefile
+.dockerignore
+docker-koa-server-api.iml
+.env
